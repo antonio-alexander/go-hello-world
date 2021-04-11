@@ -1,0 +1,23 @@
+version: '3'
+services:
+  hello-world-cli:    
+      container_name: hello-world-cli
+      image: hello-world:latest
+      build:
+        context: ../cli
+        dockerfile: ./cmd/Dockerfile
+#      environment:
+  hello-world-rest:
+    container_name: hello-world-rest
+    restart: "always"
+    build:
+      context: ../rest
+      dockerfile: ./cmd/Dockerfile
+    ports:
+      - "8081:8081"
+      - "2345:2345"
+    security_opt:
+      - "seccomp:unconfined"
+    volumes:
+      - .:/go/src/github.com/antonio-alexander/go-hello-http
+volumes:
