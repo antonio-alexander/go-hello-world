@@ -6,12 +6,10 @@ import (
 	"strings"
 	"syscall"
 
-	cli "github.com/antonio-alexander/go-hello-world/cli"
+	cli "github.com/antonio-alexander/go-hello-world/internal/cli"
 )
 
 func main() {
-	var envs = make(map[string]string)
-
 	//get the present working directory, get
 	// any supplied arguments (trimming the
 	// command), transform environmental
@@ -20,9 +18,16 @@ func main() {
 	// output and provide an exit status of 1
 	pwd, _ := os.Getwd()
 	args := os.Args[1:]
+	envs := make(map[string]string)
 	for _, env := range os.Environ() {
-		splitEnv := strings.Split(env, "=")
-		envs[splitEnv[0]] = splitEnv[1]
+		if s := strings.Split(env, "="); len(s) > 1 {
+			switch {
+			case len(s) == 2:
+				envs[s[0]] = s[1]
+			case len(s) > 2:
+				envs[s[0]] = strings.Join(s[1:], "=")
+			}
+		}
 	}
 	osSignal := make(chan os.Signal, 1)
 	signal.Notify(osSignal, syscall.SIGINT, syscall.SIGTERM)

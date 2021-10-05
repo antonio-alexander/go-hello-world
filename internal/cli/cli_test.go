@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	cli "github.com/antonio-alexander/go-hello-world/cli"
+	cli "github.com/antonio-alexander/go-hello-world/internal/cli"
 )
 
 func TestCli(t *testing.T) {

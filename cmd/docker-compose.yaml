@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+
+  hello-world-cli:    
+      container_name: hello-world-cli
+      hostname: hello-world-cli
+      image: hello-world-cli:latest
+      build:
+        context: ../
+        dockerfile: ./cmd/cli/Dockerfile
+      # entrypoint: ["tail", "-f", "/dev/null"]
+
+  hello-world-rest:
+    container_name: hello-world-rest
+    hostname: hello-world-rest
+    image: hello-world-rest:latest
+    restart: "always"
+    build:
+      context: ../
+      dockerfile: ./cmd/rest/Dockerfile
+    ports:
+      - "8080:8080"
+      - "2345:2345"
+    security_opt:
+      - "seccomp:unconfined"
+    volumes:
+      - .:/go/src/github.com/antonio-alexander/go-hello-world
+    # entrypoint: ["tail", "-f", "/dev/null"]

@@ -16,17 +16,17 @@ func Main(pwd string, args []string, envs map[string]string, osSignal chan os.Si
 		fmt.Fprintf(writer, "Hello, World!")
 	})
 	server := &http.Server{
-		Addr:    "",
+		Addr:    ":8080",
 		Handler: nil,
 	}
-	fmt.Println("Starting web server on port 8080")
+	fmt.Printf("starting web server on :8080")
 	stopped := make(chan struct{})
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
 		defer close(stopped)
 
-		if err := server.ListenAndServe(); err != nil {
+		if err = server.ListenAndServe(); err != nil {
 			fmt.Println(err)
 		}
 	}()

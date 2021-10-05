@@ -4,7 +4,6 @@
 *.dll
 *.so
 *.dylib
-cmd/hello-world/hello-world
 
 # Test binary, built with `go test -c`
 *.test

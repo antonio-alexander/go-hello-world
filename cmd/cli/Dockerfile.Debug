@@ -1,0 +1,33 @@
+#---------------------------------------------------------------------------------------------------
+# hello-world [Dockerfile.Debug]
+#---------------------------------------------------------------------------------------------------
+
+FROM golang:alpine AS build
+
+WORKDIR /go/src/go-hello-world
+
+COPY . /go/src/go-hello-world
+
+RUN apk add --no-cache ca-certificates \
+    dpkg \
+    gcc \
+    git \
+    musl-dev \
+    && mkdir -p "$GOPATH/src" "$GOPATH/bin" \
+    && mkdir -p /app/ \
+    && go get github.com/go-delve/delve/cmd/dlv
+
+RUN \
+    cd cmd/cli \
+    && go build -gcflags "all=-N -l"  -o hello-world-cli \
+    && chmod +X ./hello-world-cli
+
+FROM alpine:latest
+
+WORKDIR /app
+
+COPY --from=build /go/src/go-hello-world/cmd/cli/hello-world-cli /app/hello-world-cli
+COPY --from=build /go/src/go-hello-world/cmd/cli//sample_read_only.txt /app/sample_read_only.txt 
+COPY --from=build /go/bin/dlv /bin/
+
+CMD dlv exec /app/hello-world-cli --headless --listen=":2345" --log --api-version=2 --check-go-version=false
