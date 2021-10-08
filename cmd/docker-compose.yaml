@@ -21,6 +21,18 @@ services:
       dockerfile: ./cmd/rest/Dockerfile
     ports:
       - "8080:8080"
+    # entrypoint: ["tail", "-f", "/dev/null"]
+
+  hello-world-rest-debug:
+    container_name: hello-world-rest-debug
+    hostname: hello-world-rest-debug
+    image: hello-world-rest-debug:latest
+    restart: "always"
+    build:
+      context: ../
+      dockerfile: ./cmd/rest/Dockerfile.Debug
+    ports:
+      - "8081:8080"
       - "2345:2345"
     security_opt:
       - "seccomp:unconfined"
