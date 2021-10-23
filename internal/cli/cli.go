@@ -30,7 +30,8 @@ func Main(pwd string, args []string, envs map[string]string, osSignal chan os.Si
 		// directory, arguments and environmental variables,
 		// then try to find the command if provied
 		fmt.Printf("Version: %s\n", Version)
-		fmt.Printf("CommitHash: %s\n", CommitHash)
+		fmt.Printf("Git Commit: %s\n", GitCommit)
+		fmt.Printf("Git Branch: %s\n", GitBranch)
 		fmt.Printf(" Present Working Directory: %s\n", pwd)
 		fmt.Printf(" Arguments: %v\n", args)
 		fmt.Printf(" Environmental Variables:\n")
@@ -39,7 +40,7 @@ func Main(pwd string, args []string, envs map[string]string, osSignal chan os.Si
 		}
 	case "error":
 		//output an error on purpose
-		err = errors.New("Error on purpose")
+		err = errors.New("error on purpose")
 	case "panic":
 		//panic on purpose
 		panic("Panicking on purpose")
@@ -54,15 +55,8 @@ func Main(pwd string, args []string, envs map[string]string, osSignal chan os.Si
 			go func(i int) {
 				defer wg.Done()
 
-				for {
-					select {
-					default:
-					case <-osSignal:
-						fmt.Printf("Stopping cpu routine %d\n", i+1)
-
-						return
-					}
-				}
+				<-osSignal
+				fmt.Printf("Stopping cpu routine %d\n", i+1)
 			}(i)
 		}
 		wg.Wait()
@@ -122,28 +116,6 @@ func Main(pwd string, args []string, envs map[string]string, osSignal chan os.Si
 		fmt.Println("awaiting signal")
 		wg.Wait()
 		fmt.Println("exiting")
-	}
-
-	return
-}
-
-//Rest
-func Rest(pwd string, args []string, envs map[string]string, osSignal chan os.Signal) (err error) {
-	// var wg sync.WaitGroup
-	var command string
-	var ok bool
-
-	//print hello world, then attempt to get the command
-	fmt.Println("Hello, World!")
-	if command, ok = envs["Command"]; !ok {
-		if ok = (len(args) > 0); ok {
-			command = args[0]
-		}
-	}
-	//switch over the command argument/environmental variable and
-	// execute the appropriate case
-	switch strings.TrimSpace(strings.ToLower(strings.ReplaceAll(command, "-", ""))) {
-	default:
 	}
 
 	return
