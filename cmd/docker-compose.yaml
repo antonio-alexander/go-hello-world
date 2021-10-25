@@ -2,31 +2,40 @@ version: '3'
 
 services:
 
+  test-shell:    
+    container_name: test-shell
+    hostname: test-shell
+    image: alpine:latest
+    entrypoint: ["tail", "-f", "/dev/null"]
+    volumes:
+      - .:/go/src/github.com/antonio-alexander/go-hello-world
+
   hello-world-cli:    
       container_name: hello-world-cli
       hostname: hello-world-cli
       image: hello-world-cli:latest
+      # entrypoint: ["tail", "-f", "/dev/null"]
       build:
         context: ../
         dockerfile: ./cmd/cli/Dockerfile
-      # entrypoint: ["tail", "-f", "/dev/null"]
 
   hello-world-rest:
     container_name: hello-world-rest
     hostname: hello-world-rest
     image: hello-world-rest:latest
+    # entrypoint: ["tail", "-f", "/dev/null"]
     restart: "always"
     build:
       context: ../
       dockerfile: ./cmd/rest/Dockerfile
     ports:
       - "8080:8080"
-    # entrypoint: ["tail", "-f", "/dev/null"]
 
   hello-world-rest-debug:
     container_name: hello-world-rest-debug
     hostname: hello-world-rest-debug
     image: hello-world-rest-debug:latest
+    # entrypoint: ["tail", "-f", "/dev/null"]
     restart: "always"
     build:
       context: ../
@@ -38,4 +47,3 @@ services:
       - "seccomp:unconfined"
     volumes:
       - .:/go/src/github.com/antonio-alexander/go-hello-world
-    # entrypoint: ["tail", "-f", "/dev/null"]
