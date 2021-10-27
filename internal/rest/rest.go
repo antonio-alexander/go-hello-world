@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"os"
 	"sync"
+
+	internal "github.com/antonio-alexander/go-hello-world/internal"
 )
 
 func Main(pwd string, args []string, envs map[string]string, osSignal chan os.Signal) (err error) {
@@ -13,7 +15,7 @@ func Main(pwd string, args []string, envs map[string]string, osSignal chan os.Si
 	//generate and create handle func, when connecting, it will use this port
 	//indicate via console that the webserver is starting
 	http.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
-		fmt.Fprintf(writer, "Hello, World!")
+		fmt.Fprintf(writer, "Hello, World!\nVersion: \"%s\"\nGit Commit: \"%s\"\nGit Branch: \"%s\"\n", internal.Version, internal.GitCommit, internal.GitBranch)
 	})
 	server := &http.Server{
 		Addr:    ":8080",

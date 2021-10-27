@@ -10,6 +10,8 @@ env:
   IMAGE_NAME: ${{ github.repository }}
   GITHUB_SHA: ${{ github.sha }}
   GITHUB_REF: ${{ github.ref }}
+  PLATFORM_AMD64: linux/amd64
+  PLATFORM_ARMV7: linux/arm/v7
 
 jobs:
   build_images:
@@ -23,25 +25,35 @@ jobs:
         run: |
           version=`cat /home/runner/work/go-hello-world/go-hello-world/version.json | jq '.Version' | sed 's/"//g'`
           echo "version=$version" >> $GITHUB_ENV
-      - name: Build docker cli (intel)
+      - name: Build docker cli
         run: |
-          docker build -f ./cmd/cli/Dockerfile . -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cli:intel_${{ env.version }} --build-arg GIT_COMMIT=$GITHUB_SHA --build-arg GIT_BRANCH=$GITHUB_REF
-      - name: Build docker rest (intel)
+          github_ref=${GITHUB_REF##refs/heads/}
+          github_ref=${GITHUB_REF##refs/tags/}
+          docker build -f ./cmd/cli/Dockerfile . -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cli:amd64_${{ env.version }} --build-arg GIT_COMMIT=$GITHUB_SHA --build-arg GIT_BRANCH=$github_ref --build-arg PLATFORM=$PLATFORM_AMD64 --build-arg GO_ARCH=amd64
+          docker build -f ./cmd/cli/Dockerfile . -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cli:armv7_${{ env.version }} --build-arg GIT_COMMIT=$GITHUB_SHA --build-arg GIT_BRANCH=$github_ref --build-arg PLATFORM=$PLATFORM_ARMV7 --build-arg GO_ARCH=arm --build-arg GO_ARM=7
+      - name: Build docker rest
         run: |
-          docker build -f ./cmd/rest/Dockerfile . -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-rest:intel_${{ env.version }} --build-arg GIT_COMMIT=$GITHUB_SHA --build-arg GIT_BRANCH=$GITHUB_REF
+          github_ref=${GITHUB_REF##refs/heads/}
+          github_ref=${GITHUB_REF##refs/tags/}
+          docker build -f ./cmd/rest/Dockerfile . -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-rest:amd64_${{ env.version }} --build-arg GIT_COMMIT=$GITHUB_SHA --build-arg GIT_BRANCH=$github_ref --build-arg PLATFORM=$PLATFORM_AMD64 --build-arg GO_ARCH=amd64
+          docker build -f ./cmd/rest/Dockerfile . -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-rest:armv7_${{ env.version }} --build-arg GIT_COMMIT=$GITHUB_SHA --build-arg GIT_BRANCH=$github_ref --build-arg PLATFORM=$PLATFORM_ARMV7 --build-arg GO_ARCH=arm --build-arg GO_ARM=7
       - name: Generate build artifacts
         run: |
           mkdir -p /tmp
-          docker save -o /tmp/go-hello-world-cli_intel-${{ env.version }}.tar.gz ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cli:intel_${{ env.version }}
-          docker save -o /tmp/go-hello-world-rest_intel-${{ env.version }}.tar.gz ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-rest:intel_${{ env.version }}
+          docker save -o /tmp/go-hello-world-cli_amd64-${{ env.version }}.tar.gz ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cli:amd64_${{ env.version }}
+          docker save -o /tmp/go-hello-world-cli_armv7-${{ env.version }}.tar.gz ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cli:armv7_${{ env.version }}
+          docker save -o /tmp/go-hello-world-rest_amd64-${{ env.version }}.tar.gz ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-rest:amd64_${{ env.version }}
+          docker save -o /tmp/go-hello-world-rest_armv7-${{ env.version }}.tar.gz ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-rest:armv7_${{ env.version }}
           echo ${{ env.version }} >> /tmp/version
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
           name: artifacts
           path: |
-            /tmp/go-hello-world-cli_intel-${{ env.version }}.tar.gz
-            /tmp/go-hello-world-rest_intel-${{ env.version }}.tar.gz
+            /tmp/go-hello-world-cli_amd64-${{ env.version }}.tar.gz
+            /tmp/go-hello-world-cli_armv7-${{ env.version }}.tar.gz
+            /tmp/go-hello-world-rest_amd64-${{ env.version }}.tar.gz
+            /tmp/go-hello-world-rest_armv7-${{ env.version }}.tar.gz
             /tmp/version
           retention-days: 1
       - name: Docker clean-up
@@ -73,25 +85,29 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Load Docker Images
         run: |
-          docker load -i /tmp/go-hello-world-cli_intel-${{ env.version }}.tar.gz
-          docker load -i /tmp/go-hello-world-rest_intel-${{ env.version }}.tar.gz
-          docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cli:intel_${{ env.version }} ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cli:intel_latest
-          docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-rest:intel_${{ env.version }} ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-rest:intel_latest
+          docker load -i /tmp/go-hello-world-cli_amd64-${{ env.version }}.tar.gz
+          docker load -i /tmp/go-hello-world-cli_armv7-${{ env.version }}.tar.gz
+          docker load -i /tmp/go-hello-world-rest_amd64-${{ env.version }}.tar.gz
+          docker load -i /tmp/go-hello-world-rest_armv7-${{ env.version }}.tar.gz
+          docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cli:amd64_${{ env.version }} ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cli:amd64_latest
+          docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cli:armv7_${{ env.version }} ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cli:armv7_latest
+          docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-rest:amd64_${{ env.version }} ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-rest:amd64_latest
+          docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-rest:armv7_${{ env.version }} ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-rest:armv7_latest
       - name: Push Docker Images
         run: |
-          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cli:intel_${{ env.version }} 
-          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cli:intel_latest
-          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-rest:intel_${{ env.version }}
-          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-rest:intel_latest
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cli:amd64_${{ env.version }} 
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cli:amd64_latest
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cli:armv7_${{ env.version }} 
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cli:armv7_latest
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-rest:amd64_${{ env.version }}
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-rest:amd64_latest
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-rest:armv7_${{ env.version }}
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-rest:armv7_latest
       - name: Create/Push Docker manifest
         run: |
-          docker manifest create ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cli:${{ env.version }} ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cli:intel_${{ env.version }}
+          docker manifest create ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cli:${{ env.version }} ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cli:amd64_${{ env.version }} ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cli:armv7_${{ env.version }}
           docker manifest push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cli:${{ env.version }} --purge
-          docker manifest create ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cli:latest ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cli:intel_latest
-          docker manifest push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cli:latest --purge
-          docker manifest create ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-rest:${{ env.version }} ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-rest:intel_${{ env.version }}
-          docker manifest push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-rest:${{ env.version }} --purge
-          docker manifest create ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-rest:latest ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-rest:intel_latest
+          docker manifest create ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-rest:latest ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-rest:amd64_latest ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-rest:armv7_latest
           docker manifest push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-rest:latest --purge
       - name: Docker clean-up
         run: |

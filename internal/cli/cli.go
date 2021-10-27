@@ -7,6 +7,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	internal "github.com/antonio-alexander/go-hello-world/internal"
 )
 
 //Main
@@ -29,9 +31,9 @@ func Main(pwd string, args []string, envs map[string]string, osSignal chan os.Si
 		//print some common information, including the working
 		// directory, arguments and environmental variables,
 		// then try to find the command if provied
-		fmt.Printf("Version: %s\n", Version)
-		fmt.Printf("Git Commit: %s\n", GitCommit)
-		fmt.Printf("Git Branch: %s\n", GitBranch)
+		fmt.Printf("Version: \"%s\"\n", internal.Version)
+		fmt.Printf("Git Commit: \"%s\"\n", internal.GitCommit)
+		fmt.Printf("Git Branch: \"%s\"\n", internal.GitBranch)
 		fmt.Printf(" Present Working Directory: %s\n", pwd)
 		fmt.Printf(" Arguments: %v\n", args)
 		fmt.Printf(" Environmental Variables:\n")
