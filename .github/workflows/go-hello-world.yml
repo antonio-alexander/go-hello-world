@@ -106,8 +106,16 @@ jobs:
       - name: Create/Push Docker manifest
         run: |
           docker manifest create ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cli:${{ env.version }} ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cli:amd64_${{ env.version }} ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cli:armv7_${{ env.version }}
+          docker manifest annotate --arch arm --os linux --variant 7 ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cli:${{ env.version }} ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cli:armv7_${{ env.version }}
           docker manifest push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cli:${{ env.version }} --purge
+          docker manifest create ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cli:latest ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cli:amd64_latest ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cli:armv7_latest
+          docker manifest annotate --arch arm --os linux --variant 7 ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cli:latest ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cli:armv7_latest
+          docker manifest push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-cli:latest --purge
+          docker manifest create ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-rest:${{ env.version }} ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-rest:amd64_${{ env.version }} ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-rest:armv7_${{ env.version }}
+          docker manifest annotate --arch arm --os linux --variant 7 ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-rest:${{ env.version }} ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-rest:armv7_${{ env.version }}
+          docker manifest push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-rest:${{ env.version }} --purge
           docker manifest create ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-rest:latest ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-rest:amd64_latest ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-rest:armv7_latest
+          docker manifest annotate --arch arm --os linux --variant 7 ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-rest:latest ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-rest:armv7_latest
           docker manifest push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-rest:latest --purge
       - name: Docker clean-up
         run: |
