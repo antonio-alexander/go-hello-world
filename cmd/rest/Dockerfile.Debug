@@ -1,0 +1,33 @@
+#build from alpine container with golang
+FROM golang:alpine AS build
+
+WORKDIR /go/src/go-hello-world
+
+COPY . /go/src/go-hello-world
+
+#install delve and build the hell-http app
+RUN apk add --no-cache ca-certificates \
+    dpkg \
+    gcc \
+    git \
+    musl-dev \
+    && go get github.com/go-delve/delve/cmd/dlv \
+    && go install github.com/go-delve/delve/cmd/dlv \
+    && cd /go/src/go-hello-world/cmd/rest \
+    && go build -gcflags "all=-N -l" -o hello-world-rest \
+    && chmod +x hello-world-rest
+
+#build from a clean container (without golang)
+FROM alpine:latest
+
+#set working directory to app
+WORKDIR /app
+
+#copy delve and the app
+COPY --from=build /go/src/go-hello-world/cmd/rest/hello-world-rest /app/hello-world-rest
+COPY --from=build /go/bin/dlv /bin/
+
+#use this to run delve with the executable
+# CMD dlv exec /app/hello-world-rest --headless --listen=":2345" --log --api-version=2 --check-go-version=false --allow-non-terminal-interactive=true
+# CMD dlv exec /app/hello-world-rest --headless --listen=":2345" --log --api-version=2 --check-go-version=false
+CMD dlv exec /app/hello-world-rest --headless --listen=":2345"
