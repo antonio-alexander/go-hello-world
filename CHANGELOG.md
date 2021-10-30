@@ -7,7 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.1.0] - 2021-10-26
 
-- Added support for arm64
+- Addded support for linux/arm/v7 (rpi4)
+- Updated applications to display commit/branch/version (rest)
 
 ## [1.0.0] - 2021-02-20
 
