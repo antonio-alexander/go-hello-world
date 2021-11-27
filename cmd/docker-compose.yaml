@@ -1,21 +1,20 @@
-version: '3'
+version: "3"
 
 services:
-
-  hello-world-cli:    
-      container_name: hello-world-cli
-      hostname: hello-world-cli
-      image: ghcr.io/antonio-alexander/go-hello-world-cli:latest
-      # image: ghcr.io/antonio-alexander/go-hello-world-cli:amd64_latest
-      # image: ghcr.io/antonio-alexander/go-hello-world-cli:armv7_latest
-      build:
-        context: ../
-        dockerfile: ./cmd/cli/Dockerfile
-        args:
-          - PLATFORM=linux/amd64
-          - GO_ARCH=amd64
-          # - GO_ARCH=arm
-          # - GO_ARM=7
+  hello-world-cli:
+    container_name: hello-world-cli
+    hostname: hello-world-cli
+    image: ghcr.io/antonio-alexander/go-hello-world-cli:latest
+    # image: ghcr.io/antonio-alexander/go-hello-world-cli:amd64_latest
+    # image: ghcr.io/antonio-alexander/go-hello-world-cli:armv7_latest
+    build:
+      context: ../
+      dockerfile: ./cmd/cli/Dockerfile
+      args:
+        - PLATFORM=linux/amd64
+        - GO_ARCH=amd64
+        # - GO_ARCH=arm
+        # - GO_ARM=7
 
   hello-world-rest:
     container_name: hello-world-rest
