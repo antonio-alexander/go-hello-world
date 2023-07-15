@@ -5,34 +5,28 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "CLI",
+            "name": "go-hello-world_cli",
             "type": "go",
             "request": "launch",
             "mode": "auto",
-            "cwd": "${workspaceRoot}/cmd/cli",
+            "cwd": "${workspaceRoot}",
             "program": "${workspaceRoot}/cmd/cli/main.go",
             "env": {
                 //
             }
         },
         {
-            "name": "REST (Remote)",
-            "type": "go",
-            "request": "attach",
-            "mode": "remote",
-            "remotePath": "${workspaceFolder}",
-            "port": 2345,
-            "host": "127.0.0.1"
-        },
-        {
-            "name": "REST",
+            "name": "go-hello-world_rest",
             "type": "go",
             "request": "launch",
             "mode": "auto",
-            "cwd": "${workspaceRoot}/cmd/rest",
+            "cwd": "${workspaceRoot}",
             "program": "${workspaceRoot}/cmd/rest/main.go",
             "env": {
-                //
+                "CERT_FILE": "./certs/ssl.crt",
+                "KEY_FILE": "./certs/ssl.key",
+                "HTTPS_ENABLED": "true",
+                "HTTP_PORT": "8080",
             }
         },
     ]

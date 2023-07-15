@@ -38,7 +38,11 @@ RUN apk add jq
 RUN \
     VERSION=`cat /go/src/go-hello-world/version.json | jq '.Version' | sed 's/"//g'` \
     && cd cmd/cli \
-    && env GOARCH=${GO_ARCH} GOARM=${GO_ARM} GOOS=linux go build -ldflags "-X github.com/antonio-alexander/go-hello-world/internal.Version=${VERSION} -X github.com/antonio-alexander/go-hello-world/internal.GitCommit=${GIT_COMMIT} -X github.com/antonio-alexander/go-hello-world/internal.GitBranch=${GIT_BRANCH}" -o hello-world-cli \
+    && env GOARCH=${GO_ARCH} GOARM=${GO_ARM} GOOS=linux go build -ldflags \
+    "-X github.com/antonio-alexander/go-hello-world/cmd/cli/internal.Version=${VERSION} \
+    -X github.com/antonio-alexander/go-hello-world/cmd/cli/internal.GitCommit=${GIT_COMMIT} \
+    -X github.com/antonio-alexander/go-hello-world/cmd/cli/internal.GitBranch=${GIT_BRANCH}" \
+    -o hello-world-cli \
     && chmod +X hello-world-cli \
     && tar -czvf hello-world-cli.tar.gz ./hello-world-cli
 
@@ -50,7 +54,7 @@ ARG GIT_COMMIT
 WORKDIR /app
 
 COPY --from=build /go/src/go-hello-world/cmd/cli/hello-world-cli.tar.gz /app/hello-world-cli.tar.gz
-COPY ./cmd/cli/sample_read_only.txt /app/sample_read_only.txt
+COPY ./cmd/cli/data/sample_read_only.txt /app/sample_read_only.txt
 
 LABEL antonio-alexander.git.branch=${GIT_BRANCH}
 LABEL antonio-alexander.git.commit=${GIT_COMMIT}

@@ -3,17 +3,5 @@
         "-count=1",
         "-v"
     ],
-    "go.delveConfig": {
-        "dlvLoadConfig": {
-            "followPointers": true,
-            "maxVariableRecurse": 1,
-            "maxStringLen": 64,
-            "maxArrayValues": 64,
-            "maxStructFields": -1
-        },
-        "apiVersion": 2,
-        "showGlobalVariables": true,
-        // "debugAdapter": "legacy",
-        "substitutePath": []
-    }
+    "go.lintTool": "golangci-lint"
 }

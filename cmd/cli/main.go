@@ -6,7 +6,7 @@ import (
 	"strings"
 	"syscall"
 
-	cli "github.com/antonio-alexander/go-hello-world/internal/cli"
+	internal "github.com/antonio-alexander/go-hello-world/cmd/cli/internal"
 )
 
 func main() {
@@ -31,7 +31,7 @@ func main() {
 	}
 	osSignal := make(chan os.Signal, 1)
 	signal.Notify(osSignal, syscall.SIGINT, syscall.SIGTERM)
-	if err := cli.Main(pwd, args, envs, osSignal); err != nil {
+	if err := internal.Main(pwd, args, envs, osSignal); err != nil {
 		os.Stderr.WriteString(err.Error())
 		os.Exit(1)
 	}

@@ -38,7 +38,11 @@ RUN apk add jq
 RUN \
     VERSION=`cat /go/src/go-hello-world/version.json | jq '.Version' | sed 's/"//g'` \
     cd cmd/rest \
-    && env GOARCH=${GO_ARCH} GOARM=${GO_ARM} GOOS=linux go build -ldflags "-X github.com/antonio-alexander/go-hello-world/internal.Version=${VERSION} -X github.com/antonio-alexander/go-hello-world/internal.GitCommit=${GIT_COMMIT} -X github.com/antonio-alexander/go-hello-world/internal.GitBranch=${GIT_BRANCH}" -o hello-world-rest \
+    && env GOARCH=${GO_ARCH} GOARM=${GO_ARM} GOOS=linux go build -ldflags \
+    "-X github.com/antonio-alexander/go-hello-world/cmd/rest/internal.Version=${VERSION} \
+    -X github.com/antonio-alexander/go-hello-world/cmd/rest/internal.GitCommit=${GIT_COMMIT} \
+    -X github.com/antonio-alexander/go-hello-world/cmd/rest/internal.GitBranch=${GIT_BRANCH}" \
+    -o hello-world-rest \
     && chmod +X hello-world-rest \
     && tar -czvf hello-world-rest.tar.gz ./hello-world-rest
 

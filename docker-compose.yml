@@ -1,0 +1,36 @@
+version: '3'
+
+services:
+
+  hello-world-cli:    
+      container_name: hello-world-cli
+      hostname: hello-world-cli
+      image: ghcr.io/antonio-alexander/go-hello-world-cli:latest
+      build:
+        context: .
+        dockerfile: ./cmd/cli/Dockerfile
+        args:
+          PLATFORM: linux/amd64
+          GO_ARCH: amd64
+
+  hello-world-rest:
+    container_name: hello-world-rest
+    hostname: hello-world-rest
+    image: ghcr.io/antonio-alexander/go-hello-world-rest:latest
+    restart: "always"
+    build:
+      context: .
+      dockerfile: ./cmd/rest/Dockerfile
+      args:
+        PLATFORM: linux/amd64
+        GO_ARCH: amd64
+    ports:
+      - "8080:8080"
+    environment:
+      HTTP_PORT: "8080"
+      CERT_FILE: ${CERT_FILE:-/certs/ssl.crt}
+      KEY_FILE: ${KEY_FILE:-/certs/ssl.key}
+      HTTPS_ENABLED: ${HTTPS_ENABLED:-true}
+    volumes:
+      - ./certs:/certs
+      - ./tmp:/tmp
